@@ -8,9 +8,49 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525">
     <Grid>
-        <WindowsFormsHost>
-            <cht:Chart x:Name="Chart1">
-            </cht:Chart>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition Width="auto" />
+            <ColumnDefinition />
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition />
+            <ColumnDefinition Width="auto" />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+
+
+        <ListView x:Name="ListViewPopulação" Grid.Column="0"/>
+        <GridSplitter Grid.Column="1"
+                      Margin="2,0,2,0"
+                      Width="3"
+                      VerticalAlignment="Stretch"
+                      HorizontalAlignment="Center" />
+
+        <TreeView x:Name="TreeViewAmostras"
+                  Grid.Column="2">
+        </TreeView>
+        <GridSplitter Grid.Column="3"
+                      Margin="2,0,2,0"
+                      Width="3"
+                      VerticalAlignment="Stretch"
+                      HorizontalAlignment="Center" />
+
+        <StackPanel Grid.Column="4">
+            <StackPanel x:Name="StackPanelInformacoes"
+                        Grid.Column="4" />
+            <StackPanel x:Name="StackPanelInformacoesAmostra"
+                            Grid.Column="4" />
+        </StackPanel>
+        <GridSplitter Grid.Column="5"
+                      Margin="2,0,2,0"
+                      Width="3"
+                      VerticalAlignment="Stretch"
+                      HorizontalAlignment="Center" />
+        
+        <WindowsFormsHost Grid.Column="6">
+                <cht:Chart x:Name="Chart1">
+                </cht:Chart>
         </WindowsFormsHost>
+        
     </Grid>
 </Window>
