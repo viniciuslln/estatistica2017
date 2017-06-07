@@ -25,13 +25,14 @@ namespace Estatistica
         int tamAmostra = 25; // Tamanho da amostra
         double erro; // Erro padão da amostra
 
+        double[] populacaoComMedia; // População
         double[] populacao; // População
         List<double[]> amostras; // Lista com as Amostras
 
         public MainWindow()
         {
             InitializeComponent();
-            
+
             inicializar();
 
         }
@@ -39,7 +40,7 @@ namespace Estatistica
         {
             // Calcula erro com base de 95% de confiança
             // 1,96 é valor de ... de acordo com z = 0,tamAmostra segundo tabela normal 
-            erro = 1.96 * (Math.Sqrt(variancia) / Math.Sqrt(tamAmostra)); 
+            erro = 1.96 * (Math.Sqrt(variancia) / Math.Sqrt(tamAmostra));
             // Inicializando população
             gerarPopulacao();
             // Coleta Amostras
@@ -62,7 +63,7 @@ namespace Estatistica
             if (disponivel)
             {
                 disponivel = false;
-                return media + desvioPadrao * proxGauss;
+                return desvioPadrao * proxGauss;
             }
 
             double u1 = rng.NextDouble();
@@ -73,7 +74,7 @@ namespace Estatistica
             proxGauss = temp1 * Math.Sin(temp2);
             disponivel = true;
             var toReturn = temp1 * Math.Cos(temp2);
-            return media + desvioPadrao * toReturn;
+            return desvioPadrao * toReturn;
         }
         public void gerarPopulacao()
         {
@@ -82,13 +83,20 @@ namespace Estatistica
             {
                 populacao[i] = RandomGauss(media, Math.Sqrt(variancia));
             }
-            ListViewPopulação.ItemsSource = populacao;
-            var mediaCalculada = calculaMedia(populacao);
+
+            Array.Sort(populacao);
+
+            populacaoComMedia = populacao.Select(a => a + media).ToArray();
+            var mediaCalculada = calculaMedia(populacaoComMedia);
+
 
             //------------------------------------------
             // Atualiza interface
+            ListViewPopulação.ItemsSource = populacao;
+            ListViewPopulaçãoComMedia.ItemsSource = populacaoComMedia;
             StackPanelInformacoes.Children.Add(new TextBlock()
             {
+                Margin = new Thickness(6),
                 Text = "Média da População: " + mediaCalculada
             });
         }
@@ -103,13 +111,13 @@ namespace Estatistica
             {
                 HashSet<int> randomNumbers = new HashSet<int>();
                 for (int j = 0; j < tamAmostra; j++)
-                    while (!randomNumbers.Add(random.Next(0,999))) ;
+                    while (!randomNumbers.Add(random.Next(0, 999))) ;
                 var amostra = new double[tamAmostra];
                 var numeros = randomNumbers.ToList();
                 for (int j = 0; j < tamAmostra; j++)
-                    amostra[j] = populacao[numeros[j]];
+                    amostra[j] = populacaoComMedia[numeros[j]];
                 amostras.Add(amostra);
-                
+
                 //------------------------------------------
                 // Atualiza interface
                 var item = new TreeViewItem()
@@ -145,26 +153,28 @@ namespace Estatistica
             // Calcula a média da amostra e seu intervalo de confiança
             for (int x = 1; x <= amostras.Count; x++)
             {
-                var amostra = amostras[x-1];
-                
+                var amostra = amostras[x - 1];
+
                 var mediaAmostral = calculaMedia(amostra);
 
                 double erroSuperior = mediaAmostral + erro;
                 double erroInferior = mediaAmostral - erro;
-                
+
                 errorBarSeries.Points.AddXY(x, mediaAmostral, erroInferior, erroSuperior);
 
                 if (media >= erroInferior && media <= erroSuperior)
                     porcentagemDeAmostrasNaMedia++;
             }
 
-            StackPanelInformacoesAmostra.Children.Add(new TextBlock()
+            StackPanelInformacoes.Children.Add(new TextBlock()
             {
+                Margin = new Thickness(6),
                 Text = "Quantidade de intervalos que contem a média: " + porcentagemDeAmostrasNaMedia
             });
-            StackPanelInformacoesAmostra.Children.Add(new TextBlock()
+            StackPanelInformacoes.Children.Add(new TextBlock()
             {
-                Text = "Porcentagem de intervalos que contem a média: " + (porcentagemDeAmostrasNaMedia / quantAmostra) * 100 +"%"
+                Margin = new Thickness(6),
+                Text = "Porcentagem de intervalos que contem a média: " + (porcentagemDeAmostrasNaMedia / quantAmostra) * 100 + "%"
             });
 
             // Linha da média populacional
@@ -177,13 +187,73 @@ namespace Estatistica
                 BorderDashStyle = ChartDashStyle.Dot,
                 Text = "μ"
             };
-            
+
             Chart1.Series.Clear();
             Chart1.Series.Add(errorBarSeries);
             Chart1.ChartAreas["Intervalos"].AxisY.StripLines.Add(stripline);
 
+
+
+            Series s = new Series()
+            {
+                ChartType = SeriesChartType.Line
+            };
+
+            int[] tudo = populacao.Select(a => (int)a).ToArray();
+
+            for (int x = 0; x < tudo.Length; x++)
+            {
+                s.Points.AddXY(x, tudo[x]);
+            }
+
+            Chart2.ChartAreas.Clear();
+            Chart2.Series.Clear();
+            ChartArea aChartArea2 = new ChartArea("Intervalos");
+            Chart2.ChartAreas.Add(aChartArea2);
+            Chart2.Series.Add(s);
+
+            Series sino = new Series()
+            {
+                ChartType = SeriesChartType.Column
+            };
+
+            gerarCurvaGaussiana(populacao, Chart3);
+
         }
-        
+
+        public void gerarCurvaGaussiana(double[] pop, Chart chart)
+        {
+
+            int[] tudo = pop.Select(a => (int)a).ToArray();
+
+            Series sino = new Series()
+            {
+                ChartType = SeriesChartType.Column
+            };
+
+            int anterior = tudo[0];
+            int pos = 0;
+            for (int i = 0; i < pop.Length; i++)
+            {
+                if (tudo[i] == anterior)
+                {
+                }
+                else
+                {
+                    sino.Points.AddXY(anterior, i - pos);
+                    anterior = tudo[i];
+                    pos = i;
+                }
+            }
+            sino.Points.AddXY(anterior, tudo.Length - pos);
+
+            chart.Series.Clear();
+            chart.ChartAreas.Clear();
+            ChartArea aChartArea3 = new ChartArea("Curva");
+            chart.ChartAreas.Add(aChartArea3);
+            chart.Series.Add(sino);
+        }
+
         /// <summary>
         /// Calcula média dos elementos de um array de double
         /// <summary>
@@ -223,16 +293,21 @@ namespace Estatistica
             StackPanelInformacoesAmostra.Children.Clear();
             StackPanelInformacoesAmostra.Children.Add(new TextBlock()
             {
+                Margin = new Thickness(6),
                 Text = "Média da Amostra: " + mediaAmostral
             });
             StackPanelInformacoesAmostra.Children.Add(new TextBlock()
             {
+                Margin = new Thickness(6),
                 Text = "Erro Superior: " + erroSuperior
             });
             StackPanelInformacoesAmostra.Children.Add(new TextBlock()
             {
+                Margin = new Thickness(6),
                 Text = "Erro ingerior: " + erroInferior
             });
+
+            gerarCurvaGaussiana(amostra, Chart4);
         }
 
         //para campos aceitarem somente numeros
@@ -241,5 +316,7 @@ namespace Estatistica
             Regex regex = new Regex("[^0-9]+");
             e.Handled = regex.IsMatch(e.Text);
         }
+
+
     }
 }

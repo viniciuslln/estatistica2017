@@ -5,8 +5,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Estatistica"
         xmlns:cht="clr-namespace:System.Windows.Forms.DataVisualization.Charting;assembly=System.Windows.Forms.DataVisualization"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}" 
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto"
+        Background="{DynamicResource MaterialDesignPaper}"
+        FontFamily="{DynamicResource MaterialDesignFont}"
+        Title="MainWindow" Height="350" Width="525" >
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
@@ -16,34 +25,51 @@
             <ColumnDefinition />
             <ColumnDefinition Width="auto" />
             <ColumnDefinition />
-            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="auto" />
             <ColumnDefinition />
             <ColumnDefinition Width="auto" />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
 
         <StackPanel Grid.Row="0" Grid.ColumnSpan="7" Orientation="Horizontal" Margin="10">
-            <Label Content="Tamanho da população" />
+            <Label Content="Tamanho da população" VerticalAlignment="Center"/>
             <TextBox x:Name="TextboxTamPopulacao"
                      Width="50"
                      Text="1000"
-                     PreviewTextInput="NumberValidationTextBox" />
-            <Label Content="Média" />
+                     PreviewTextInput="NumberValidationTextBox" 
+                     VerticalAlignment="Center"/>
+            <Label Content="Média"
+                   VerticalAlignment="Center" />
             <TextBox x:Name="TextboxMedia"
                      Width="50"
                      Text="12"
+                     VerticalAlignment="Center"
                      PreviewTextInput="NumberValidationTextBox" />
-            <Label Content="Variância" />
+            <Label Content="Variância"
+                   VerticalAlignment="Center" />
             <TextBox x:Name="TextboxVariancia"
                      Width="50"
                      Text="9"
+                     VerticalAlignment="Center"
                      PreviewTextInput="NumberValidationTextBox" />
             <Button x:Name="ButtonRecarregar"
                     Click="ButtonClickRecarregar"
-                    Content="Gerar"/>
+                    Content="Gerar"
+                    VerticalAlignment="Center"
+                    Margin="10"/>
         </StackPanel>
 
-        <ListView x:Name="ListViewPopulação" Grid.Column="0" Grid.Row="1"/>
+        <Grid Grid.Column="0"
+              Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <ListView x:Name="ListViewPopulação" 
+                      Grid.Column="0"/>
+            <ListView x:Name="ListViewPopulaçãoComMedia"
+                      Grid.Column="1" />
+        </Grid>
         <GridSplitter Grid.Column="1"
                       Grid.Row="1"
                       Margin="2,0,2,0"
@@ -70,6 +96,10 @@
             <StackPanel x:Name="StackPanelInformacoesAmostra"
                         Grid.Row="1"
                             Grid.Column="4" />
+            <WindowsFormsHost Grid.Row="2">
+                <cht:Chart x:Name="Chart4">
+                </cht:Chart>
+            </WindowsFormsHost>            
         </StackPanel>
         <GridSplitter Grid.Column="5"
                       Grid.Row="1"
@@ -78,10 +108,26 @@
                       VerticalAlignment="Stretch"
                       HorizontalAlignment="Center" />
 
-        <WindowsFormsHost Grid.Column="6" Grid.Row="1">
+        <Grid  Grid.Column="6"
+               Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <WindowsFormsHost Grid.Row="0">
                 <cht:Chart x:Name="Chart1">
                 </cht:Chart>
         </WindowsFormsHost>
+            <WindowsFormsHost Grid.Row="1">
+                <cht:Chart x:Name="Chart2">
+                </cht:Chart>
+            </WindowsFormsHost>
+            <WindowsFormsHost Grid.Row="2">
+                <cht:Chart x:Name="Chart3">
+                </cht:Chart>
+            </WindowsFormsHost>
+        </Grid>
         
     </Grid>
 </Window>
